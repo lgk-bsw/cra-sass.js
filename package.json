@@ -11,8 +11,8 @@
     "react-scripts": "3.4.3"
   },
   "scripts": {
-    "start": "node create-file-with-css-exports.js && react-scripts start",
-    "build": "node create-file-with-css-exports.js && react-scripts build",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
