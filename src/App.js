@@ -2,7 +2,9 @@ import React from "react"
 import logo from "./logo.svg"
 import "./App.css"
 
-const {Sass} = require("./lib/sass")
+import { scssCode } from "./scssCode"
+
+const { Sass } = require("./lib/sass")
 Sass.setWorkerUrl("sass.worker.js")
 
 const sass = new Sass()
@@ -19,6 +21,7 @@ function App() {
 
   return (
     <div className="App">
+      {scssCode["blue-react"]}
       <button onClick={compile}>Compile</button>
     </div>
   )
