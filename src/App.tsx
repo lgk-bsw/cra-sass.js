@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react"
-import logo from "./logo.svg"
 import "./App.css"
-
-import { scssCode } from "./scssCode"
+import { scssCode } from "./shared/scssImportGenerated"
+import { ScssCodeLibrary } from "./shared/scssImportTypes"
 
 const { Sass } = require("./lib/sass")
 Sass.setWorkerUrl("sass.worker.js")
@@ -12,11 +11,19 @@ sass.options({
     style: Sass.style.compressed
 })
 
-// Object.values(scssCode).forEach((library) => {
-//     Object.keys(library.imports).forEach((fileName, code) => {
-//         sass.writeFile(fileName, code)
-//     })
-// })
+interface SassJsResult {
+    files?: string[]
+    map?: { [key: string]: any }
+    message?: string
+    status: number
+    text: string | null
+}
+
+Object.values(scssCode).forEach((library: ScssCodeLibrary) => {
+    Object.keys(library.imports).forEach((path: string, i: number) => {
+        sass.writeFile(path, library.imports[path])
+    })
+})
 
 sass.writeFile("./subs/general.scss", `body {
         background-color: orange;
@@ -24,7 +31,7 @@ sass.writeFile("./subs/general.scss", `body {
 }`)
 
 function App() {
-    const [result, setResult] = useState(null)
+    const [result, setResult] = useState<SassJsResult | null>(null)
     const scssInput = `@import "./subs/general";`
 
     useEffect(() => {
@@ -34,7 +41,7 @@ function App() {
     }, [result])
 
     const compile = () => {
-        sass.compile(scssInput, result => {
+        sass.compile(scssInput, (result: SassJsResult) => {
             console.log(result)
             setResult(result)
         })
@@ -45,13 +52,13 @@ function App() {
             <style
                 type="text/css"
                 dangerouslySetInnerHTML={{
-                    __html: `${result && result.text ? result.text : ""}`
+                    __html: `${result !== null && result.text ? result.text : ""}`
                 }}
             />
 
-            {(result && result.message) && 
+            {(result !== null && result.message) &&
                 <div className="alert alert-danger">
-                    {result.message}
+                    {result!.message}
                 </div>
             }
 
