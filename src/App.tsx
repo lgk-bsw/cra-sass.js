@@ -25,11 +25,6 @@ Object.values(scssCode).forEach((library: ScssCodeLibrary) => {
     })
 })
 
-sass.writeFile("./subs/general.scss", `body {
-        background-color: orange;
-        color: blue;
-}`)
-
 function App() {
     const [result, setResult] = useState<SassJsResult | null>(null)
     const scssInput = `@import "./subs/general";`

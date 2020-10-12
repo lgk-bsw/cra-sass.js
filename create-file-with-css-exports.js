@@ -1,23 +1,71 @@
 const fs = require("fs")
+const path = require("path")
 
 const inputFiles = {
-    "own-lib": "./own-css-lib/own-css-lib.scss"
+    "own-lib": "own-css-lib\\own-css-lib.scss"
     // "blue-react": "./node_modules/blue-react/dist/style.scss"
 }
 
-let outputCodeObj = {}
+function loopDir(dirName, libraryEntry, mainFile, rootDirName) {
+    const files = fs.readdirSync(dirName)
 
-Object.keys(inputFiles).forEach(key => {
-    let libraryEntry = {
-        imports: {},
-        main: ""
-    }
+    files.forEach(file => {
+        const filePath = path.join(dirName, file)
+        const relativeFilePath = path.relative(rootDirName, filePath).replace(/\\/g, "/")
+        console.log(filePath)
+        const stat = fs.statSync(filePath)
 
-    libraryEntry.main = fs.readFileSync(inputFiles[key], { encoding: "utf8" })
+        if (stat.isFile()) {
+            console.log("is file")
+            if (file.endsWith(".scss") && filePath !== mainFile) {
+                libraryEntry.imports[relativeFilePath] = fs.readFileSync(filePath, { encoding: "utf8" })
+            }
+        }
 
-    outputCodeObj[key] = libraryEntry
-})
+        if (stat.isDirectory()) {
+            loopDir(filePath, libraryEntry, mainFile, rootDirName)
+        }
+    })
+    return libraryEntry
+}
 
-console.log(outputCodeObj)
+function main() {
+    let outputCodeObj = {}
 
-// fs.writeFileSync("./src/shared/scssImportGenerated.ts", `export const scssCode = ${JSON.stringify(outputCodeObj, null, 4)}`)
+    Object.keys(inputFiles).forEach((key) => {
+        let libraryEntry = {
+            imports: {},
+            main: ""
+        }
+
+        const mainFile = inputFiles[key]
+
+        libraryEntry.main = fs.readFileSync(mainFile, { encoding: "utf8" })
+
+        const dirName = path.dirname(mainFile)
+        libraryEntry = loopDir(dirName, libraryEntry, mainFile, dirName)
+        // const files = fs.readdirSync(dirName)
+
+        // files.forEach(file => {
+        //     const filePath = path.join(dirName, file)
+        //     console.log(filePath)
+        //     const stat = fs.statSync(filePath)
+
+        //     if (stat.isFile()) {
+        //         console.log("is file")
+        //     }
+
+        //     if (stat.isDirectory()) {
+        //         console.log("is directory")
+        //     }
+        // })
+
+        outputCodeObj[key] = libraryEntry
+    })
+
+    console.log(outputCodeObj)
+
+    fs.writeFileSync("./src/shared/scssImportGenerated.ts", `export const scssCode = ${JSON.stringify(outputCodeObj, null, 4)}`)
+}
+
+main()

@@ -1,15 +1,9 @@
-/* This code is generated and should not be edited manually! */
-
-import { ScssCode } from "./scssImportTypes";
-
-export const scssCode: ScssCode = {
+export const scssCode = {
     "own-lib": {
-        imports: {
-            "./subs/general.scss": `body {
-    background-color: orange;
-    color: blue;
-}`
+        "imports": {
+            "subs/_general.scss": "body {\r\n    background-color: $body-bg;\r\n    color: $body-color;\r\n}",
+            "subs/_variables.scss": "$body-bg: pink;\r\n$body-color: red;"
         },
-        main: `@import "./subs/general";`
+        "main": "@import \"./subs/variables\";\r\n@import \"./subs/general\";"
     }
 }
